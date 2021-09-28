@@ -17,10 +17,11 @@ class bcolors:
 
 def copy_to_clip(argv):
 	file = argv
-	print(file)
 	clip = ""
-
+	ports = ""
 	line = str(linecache.getline(file, 4))
+	if "Ports" not in line:
+		line = str(linecache.getline(file, 3))
 	line = line.split("\t")
 	try:
 		ports = str(line[1])[7:]
@@ -37,6 +38,7 @@ def copy_to_clip(argv):
 
 	except Exception as e:
 		print(bcolors.FAIL + "[-] " + bcolors.ENDC + "ERROR. Perhaps wrong file name.")
+		print(e)
 
 
 
