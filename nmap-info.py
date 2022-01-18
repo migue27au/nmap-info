@@ -86,11 +86,23 @@ def main(args):
 								SCRIPT_OUTPUT = " -> " + script.attrib['output']
 								SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","").replace("\r",".").replace("  "," ")
 							print( "    " + bcolors.PURPLE + "Script: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
+				
 				if args.clipboard:
 					clipboard_text += "T:" + PORT + ","
-			if args.clipboard:
-				clipboard_text = clipboard_text[:-1]	#para eliminar la última ,
-				pyperclip.copy(clipboard_text)
+
+		if host.find('hostscript') != None:
+			scripts = host.find('hostscript').findall('script')
+			for script in scripts:
+				SCRIPT_ID = script.attrib['id']
+				SCRIPT_OUTPUT = ""
+				if 'output' in script.attrib:
+					SCRIPT_OUTPUT = " -> " + script.attrib['output']
+					SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","").replace("\r",".").replace("  "," ")
+				print( "  " + bcolors.PURPLE + "HostScript: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
+	
+	if args.clipboard:
+		clipboard_text = clipboard_text[:-1]	#para eliminar la última ,
+		pyperclip.copy(clipboard_text)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="GET NMAP XML FILE INFORMATION")
