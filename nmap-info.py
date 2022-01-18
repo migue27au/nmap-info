@@ -90,7 +90,7 @@ def main(args):
 				if args.clipboard:
 					clipboard_text += "T:" + PORT + ","
 
-		if host.find('hostscript') != None:
+		if host.find('hostscript') != None and args.verbose:
 			scripts = host.find('hostscript').findall('script')
 			for script in scripts:
 				SCRIPT_ID = script.attrib['id']
