@@ -54,10 +54,12 @@ def main(args):
 			print(bcolors.RED + bcolors.BOLD + host.find('hostname').attrib['name'] + bcolors.ENDC)
 		
 		if host.find('ports') != None:
+			ports = host.find('ports').findall('port')
 			clipboard_text = ""
-			for port in host.find('ports'):
+			for port in ports:
 				if port.find('state').attrib['state'].upper() == 'OPEN':
 					PORT_PROTOCOL = ""
+					SERVICE_NAME = ""
 					PORT = port.attrib['portid']
 					service = port.find('service')
 					scripts = port.findall('script')
