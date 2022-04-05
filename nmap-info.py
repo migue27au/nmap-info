@@ -7,12 +7,12 @@ import pyperclip
 
 
 class Script:
-	def __init__(self, script_name):
+	def __init__(self, script_name = ""):
 		self.script_name = script_name
 		self.info = None
 
 class Port:
-	def __init__(self, port_number):
+	def __init__(self, port_number = 0):
 		self.port_number = port_number
 		self.state = None
 		self.protocol = None
@@ -22,7 +22,7 @@ class Port:
 		self.version = None
 
 class Host:
-	def __init__(self, timestamp):
+	def __init__(self, timestamp = 0):
 		self.timestamp = timestamp
 		self.address = None
 		self.address_type = None
