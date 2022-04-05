@@ -19,6 +19,7 @@ class Port:
 		self.service = None
 		self.information = None
 		self.scripts = None
+		self.version = None
 
 class Host:
 	def __init__(self, timestamp):
@@ -76,10 +77,16 @@ def main(args):
 					if args.verbose:
 						if 'product' in service.attrib:
 							SERVICE_PRODUCT = service.attrib['product']
+							SERVICE_VERSION = ""
 							SERVICE_EXTRAINFO = ""
+							if 'version' in service.attrib:
+								SERVICE_VERSION = " <" + service.attrib['version'] + ">"
 							if 'extrainfo' in service.attrib:
-								SERVICE_EXTRAINFO = " (" + service.attrib['extrainfo'] + ")"
-							print( "    " + bcolors.GREEN + "Service: " + bcolors.ENDC + SERVICE_PRODUCT + SERVICE_EXTRAINFO)
+								SERVICE_EXTRAINFO = service.attrib['extrainfo']
+								if not SERVICE_EXTRAINFO.startswith("(") and not SERVICE_EXTRAINFO.endswith(")"):
+									SERVICE_EXTRAINFO = "(" + SERVICE_EXTRAINFO + ")"
+								SERVICE_EXTRAINFO = " " + SERVICE_EXTRAINFO
+							print( "    " + bcolors.GREEN + "Service: " + bcolors.ENDC + SERVICE_PRODUCT + SERVICE_VERSION + SERVICE_EXTRAINFO)
 
 						for script in scripts:
 							SCRIPT_ID = script.attrib['id']
