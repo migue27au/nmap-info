@@ -68,7 +68,7 @@ def main(args):
 					if host.find('hostname') != None:
 						print(bcolors.RED + bcolors.BOLD + host.find('hostname').attrib['name'] + bcolors.ENDC)
 					
-					if host.find('ports') != None:
+					if host.find('ports') != None and args.show_hosts_only == False:
 						ports = host.find('ports').findall('port')
 						for port in ports:
 							if port.find('state').attrib['state'].upper() == 'OPEN':
@@ -135,6 +135,7 @@ if __name__ == '__main__':
 	parser.add_argument('--debug', action='store_true', help='Debug mode')
 	parser.add_argument('-c', '--clipboard', action='store_true', help='Save output in clipboard.')
 	parser.add_argument('-p', '--ports', help='Show ports, default all.')
+	parser.add_argument('--show_hosts_only',action='store_true', help='Only show hosts')
 	parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
 	parser.add_argument('-vv', '--very_verbose', action='store_true', help='Very verbose mode')
 	parser.add_argument('xml_file', nargs='+', type=ascii, help="XML file with the nmap output.")
