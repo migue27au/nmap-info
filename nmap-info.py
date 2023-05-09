@@ -136,6 +136,7 @@ if __name__ == '__main__':
 	parser.add_argument('-c', '--clipboard', action='store_true', help='Save output in clipboard.')
 	parser.add_argument('-p', '--ports', help='Show ports, default all.')
 	parser.add_argument('--show_hosts_only',action='store_true', help='Only show hosts')
+	parser.add_argument('--no_colors',action='store_true', default=False, help='Only show hosts')
 	parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
 	parser.add_argument('-vv', '--very_verbose', action='store_true', help='Very verbose mode')
 	parser.add_argument('xml_file', nargs='+', type=ascii, help="XML file with the nmap output.")
@@ -148,5 +149,17 @@ if __name__ == '__main__':
 	
 	if args.very_verbose:
 		args.verbose = True
+
+	if args.no_colors:
+	    bcolors.PURPLE = ''
+	    bcolors.MAGENTA = ''
+	    bcolors.BLUE = ''
+	    bcolors.CYAN = ''
+	    bcolors.GREEN = ''
+	    bcolors.YELLOW = ''
+	    bcolors.RED = ''
+	    bcolors.ENDC = ''
+	    bcolors.BOLD = ''
+	    bcolors.UNDERLINE = ''
 
 	main(args)
