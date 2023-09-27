@@ -84,8 +84,11 @@ def main(args):
 									else:
 										PORT_PROTOCOL = bcolors.BOLD + bcolors.BLUE + port.attrib['protocol'].upper() + bcolors.ENDC + " "
 									if service:
-										SERVICE_NAME = " - " + bcolors.CYAN + service.attrib['name'] + bcolors.ENDC
-									
+										service_str = service.attrib['name']
+										#Si tiene el tunell ssl añado la s al final del servicio http "+" s
+										if 'tunnel' in service.attrib.keys() and service.attrib['tunnel'] == "ssl":
+											service_str += "s"
+										SERVICE_NAME = " - " + bcolors.CYAN + service_str + bcolors.ENDC
 									print("  " + PORT_PROTOCOL + PORT + SERVICE_NAME)
 
 									if args.verbose:
