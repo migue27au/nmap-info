@@ -160,7 +160,7 @@ def main(args):
 											script_obj.information = SCRIPT_OUTPUT.replace(" -> ", "")
 											script_objs.append(script_obj)
 
-											if args.no_verbose == False:
+											if args.no_verbose == False and SCRIPT_ID not in args.no_scripts.split(","):
 												print( "    " + bcolors.PURPLE + "Script: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
 										port_obj.scripts = script_objs
 
@@ -234,6 +234,7 @@ if __name__ == '__main__':
 	parser.add_argument('--debug', action='store_true', help='Debug mode')
 	parser.add_argument('-c', '--clipboard', action='store_true', help='Save output in clipboard.')
 	parser.add_argument('-p', '--ports', help='Show ports, default all.')
+	parser.add_argument('--no_scripts', default=",", help="do not show information about these scripts. Comma separated")
 	parser.add_argument('--show_hosts_only',action='store_true', help='Only show hosts')
 	parser.add_argument('--no_colors',action='store_true', default=False, help='Only show hosts')
 	parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
