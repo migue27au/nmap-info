@@ -115,8 +115,12 @@ def main(args):
 									if service != None and 'name' in service.attrib:
 										service_str = service.attrib['name']
 										#Si tiene el tunell ssl añado la s al final del servicio http "+" s
-										if 'tunnel' in service.attrib.keys() and service.attrib['tunnel'] == "ssl" and service_str not in ["https"]:
-											service_str += "s"
+										if service_str not in ["https"]:
+											if 'tunnel' in service.attrib.keys() and service.attrib['tunnel'] == "ssl":
+												if service_str == "http-proxy":
+													service_str = "https-proxy"
+												else:
+													service_str += "s"
 										SERVICE_NAME = " - " + bcolors.CYAN + service_str + bcolors.ENDC
 										port_obj.service = service_str
 
