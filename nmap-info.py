@@ -71,6 +71,7 @@ def main(args):
 			
 			for host in hosts:
 				host_obj = Host()
+				host_obj.names = []
 
 				if host.find('status') != None and host.find('status').attrib['state'].upper() == "UP":
 					host_obj.state = "UP"
@@ -86,7 +87,7 @@ def main(args):
 						if len(host_obj.names) <= 0:
 							print(bcolors.RED + bcolors.BOLD + host_obj.address + bcolors.ENDC)
 						else:
-							print(bcolors.RED + bcolors.BOLD + host_obj.address + bcolors.ENDC + bcolors.RED + " - " + ', '.join(host_obj.names) + bcolors.ENDC)
+							print(bcolors.RED + bcolors.BOLD + ', '.join(host_obj.names) + bcolors.ENDC + " - " + bcolors.RED + host_obj.address + bcolors.ENDC)
 
 					port_objs = []
 					if host.find('ports') != None and args.show_hosts_only == False:
