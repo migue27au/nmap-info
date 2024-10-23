@@ -29,6 +29,7 @@ class Host:
 	ports = []
 	scripts = []
 	name = ""
+	names = []
 	state = ""
 	def __init__(self, timestamp = 0):
 		self.timestamp = timestamp
@@ -50,7 +51,8 @@ class bcolors:
 
 
 def main(args):
-
+	open_ports = []
+	host_objs = []
 	for file in args.xml_file:
 		if file.startswith("'") and file.endswith("'"):
 			file = file[1:-1]	#quitar ' al principio y final
@@ -66,7 +68,7 @@ def main(args):
 			tree = ET.parse(file)
 			hosts = tree.findall('host')
 
-			host_objs = []
+			
 			for host in hosts:
 				host_obj = Host()
 
@@ -75,13 +77,16 @@ def main(args):
 					if host.find('address') != None:
 						if args.no_verbose == False:
 							host_obj.address = host.find('address').attrib['addr']
-							if not args.csv:
-								print(bcolors.RED + bcolors.BOLD + host.find('address').attrib['addr'] + bcolors.ENDC)
-					if host.find('hostname') != None:
-						if args.no_verbose == False:
-							host_obj.name = hostname.attrib['name']
-							if not args.csv:
-								print(bcolors.RED + bcolors.BOLD + host.find('hostname').attrib['name'] + bcolors.ENDC)
+					if host.find('hostnames') != None:
+						for hostname in host.find('hostnames'):
+							if args.no_verbose == False and 'name' in hostname.attrib and len(hostname.attrib['name']) > 0:
+								host_obj.names.append(hostname.attrib['name'])
+
+					if not args.csv:
+						if len(host_obj.names) <= 0:
+							print(bcolors.RED + bcolors.BOLD + host_obj.address + bcolors.ENDC)
+						else:
+							print(bcolors.RED + bcolors.BOLD + host_obj.address + bcolors.ENDC + bcolors.RED + " - " + ', '.join(host_obj.names) + bcolors.ENDC)
 
 					port_objs = []
 					if host.find('ports') != None and args.show_hosts_only == False:
@@ -109,14 +114,14 @@ def main(args):
 									if service != None and 'name' in service.attrib:
 										service_str = service.attrib['name']
 										#Si tiene el tunell ssl añado la s al final del servicio http "+" s
-										if 'tunnel' in service.attrib.keys() and service.attrib['tunnel'] == "ssl":
+										if 'tunnel' in service.attrib.keys() and service.attrib['tunnel'] == "ssl" and service_str not in ["https"]:
 											service_str += "s"
 										SERVICE_NAME = " - " + bcolors.CYAN + service_str + bcolors.ENDC
 										port_obj.service = service_str
 
 									if args.no_verbose == False:
 										if args.csv:
-											print("\"{}\";{};{};\"{}\"".format(host.find('address').attrib['addr'] ,port.attrib['protocol'].upper(), PORT, service_str))
+											print(f"\"{host_obj.address}\";\"{','.join(host_obj.names)}\";{port.attrib['protocol'].upper()};{PORT};\"{service_str}\"")
 										else:
 											print("  " + PORT_PROTOCOL + PORT + SERVICE_NAME)
 
@@ -148,7 +153,7 @@ def main(args):
 											SCRIPT_OUTPUT = ""
 											if 'output' in script.attrib:
 												SCRIPT_OUTPUT = " -> " + script.attrib['output']
-												SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","").replace("\r",".").replace("  "," ")
+												SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("  "," ").replace("\n","\n      ").replace("\r",".")
 											
 											script_obj.name = SCRIPT_ID
 											script_obj.information = SCRIPT_OUTPUT.replace(" -> ", "")
@@ -186,16 +191,7 @@ def main(args):
 
 					host_obj.scripts = host_script_objs
 
-				host_objs.append(host_obj)
-			
-			if args.clipboard:
-				clipboard_text = ','.join(list(set(open_ports)))	#para eliminar la última ,
-				pyperclip.copy(clipboard_text)
-
-			json_list = []
-			for host_obj in host_objs:
-				json_list.append(host_obj.toJSON())
-			return json_list
+				host_objs.append(host_obj)			
 
 		except Exception as e:
 			if args.very_verbose and args.no_verbose == False:
@@ -203,7 +199,14 @@ def main(args):
 			if args.debug:
 				print(traceback.format_exc())
 
-			return []
+	if args.clipboard:
+		clipboard_text = ','.join(list(set(open_ports)))
+		pyperclip.copy(clipboard_text)
+
+	json_list = []
+	for host_obj in host_objs:
+		json_list.append(host_obj.toJSON())
+	return json_list
 
 def api(xml_file):
 	class Args:
