@@ -89,6 +89,26 @@ def main(args):
 						else:
 							print(bcolors.RED + bcolors.BOLD + ', '.join(host_obj.names) + bcolors.ENDC + " - " + bcolors.RED + host_obj.address + bcolors.ENDC)
 
+					if host.find('hostscript') != None and args.verbose:
+						scripts = host.find('hostscript').findall('script')
+						host_script_objs = []
+						for script in scripts:
+							host_script_obj = Script()
+							SCRIPT_ID = script.attrib['id']
+							SCRIPT_OUTPUT = ""
+							if 'output' in script.attrib:
+								SCRIPT_OUTPUT = " -> " + script.attrib['output']
+								SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","").replace("\r",".").replace("  "," ")
+							if args.no_verbose == False:
+								print( "  " + bcolors.PURPLE + "HostScript: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
+
+							host_script_obj.name = SCRIPT_ID
+							host_script_obj.information = SCRIPT_OUTPUT.replace(" -> ", "")
+							host_script_objs.append(host_script_obj)
+
+
+						host_obj.scripts = host_script_objs
+					
 					port_objs = []
 					if host.find('ports') != None and args.show_hosts_only == False:
 						ports = host.find('ports').findall('port')
@@ -176,25 +196,7 @@ def main(args):
 						#for ports end
 					host_obj.ports = port_objs
 
-				if host.find('hostscript') != None and args.verbose:
-					scripts = host.find('hostscript').findall('script')
-					host_script_objs = []
-					for script in scripts:
-						host_script_obj = Script()
-						SCRIPT_ID = script.attrib['id']
-						SCRIPT_OUTPUT = ""
-						if 'output' in script.attrib:
-							SCRIPT_OUTPUT = " -> " + script.attrib['output']
-							SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","").replace("\r",".").replace("  "," ")
-						if args.no_verbose == False:
-							print( "  " + bcolors.PURPLE + "HostScript: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
-
-						host_script_obj.name = SCRIPT_ID
-						host_script_obj.information = SCRIPT_OUTPUT.replace(" -> ", "")
-						host_script_objs.append(host_script_obj)
-
-
-					host_obj.scripts = host_script_objs
+				
 
 				host_objs.append(host_obj)			
 
