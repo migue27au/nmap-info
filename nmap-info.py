@@ -83,118 +83,128 @@ def main(args):
 							if args.no_verbose == False and 'name' in hostname.attrib and len(hostname.attrib['name']) > 0:
 								host_obj.names.append(hostname.attrib['name'])
 
-					if not args.csv:
-						if len(host_obj.names) <= 0:
-							print(bcolors.RED + bcolors.BOLD + host_obj.address + bcolors.ENDC)
-						else:
-							print(bcolors.RED + bcolors.BOLD + ', '.join(host_obj.names) + bcolors.ENDC + " - " + bcolors.RED + host_obj.address + bcolors.ENDC)
-
-					if host.find('hostscript') != None and args.verbose:
-						scripts = host.find('hostscript').findall('script')
-						host_script_objs = []
-						for script in scripts:
-							host_script_obj = Script()
-							SCRIPT_ID = script.attrib['id']
-							SCRIPT_OUTPUT = ""
-							if 'output' in script.attrib:
-								SCRIPT_OUTPUT = " -> " + script.attrib['output']
-								SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","").replace("\r",".").replace("  "," ")
-							if args.no_verbose == False:
-								print( "  " + bcolors.PURPLE + "HostScript: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
-
-							host_script_obj.name = SCRIPT_ID
-							host_script_obj.information = SCRIPT_OUTPUT.replace(" -> ", "")
-							host_script_objs.append(host_script_obj)
-
-
-						host_obj.scripts = host_script_objs
 					
-					port_objs = []
-					if host.find('ports') != None and args.show_hosts_only == False:
-						ports = host.find('ports').findall('port')
-						for port in ports:
-							port_obj = Port()
+					# Compruebo si hay puertos abiertos para la flag de "with_ports"
+					host_with_ports = False
+					if host.find('ports') != None and len(host.find('ports').findall('port')) > 0:
+						for port in host.find('ports').findall('port'):
 							if port.find('state').attrib['state'].upper() == 'OPEN':
-								port_obj.state = "OPEN"
-								if len(filter_ports) == 0 or (len(filter_ports) > 0 and int(port.attrib['portid']) in filter_ports):
-									PORT_PROTOCOL = ""
-									SERVICE_NAME = ""
-									PORT = port.attrib['portid']
-									service = port.find('service')
-									scripts = port.findall('script')
+								host_with_ports = True
+								break
 
-									port_obj.protocol = port.attrib['protocol'].upper()
-									port_obj.port_number = int(PORT)
+					if args.with_ports == False or (args.with_ports == True and host_with_ports == True):
+						if not args.csv:
+							if len(host_obj.names) <= 0:
+								print(bcolors.RED + bcolors.BOLD + host_obj.address + bcolors.ENDC)
+							else:
+								print(bcolors.RED + bcolors.BOLD + ', '.join(host_obj.names) + bcolors.ENDC + " - " + bcolors.RED + host_obj.address + bcolors.ENDC)
 
-									if port.attrib['protocol'].upper() == 'TCP':
-										PORT_PROTOCOL = bcolors.BOLD + bcolors.YELLOW + port.attrib['protocol'].upper() + bcolors.ENDC + " "
-									else:
-										PORT_PROTOCOL = bcolors.BOLD + bcolors.BLUE + port.attrib['protocol'].upper() + bcolors.ENDC + " "
-									
-									service_str = ""
-									if service != None and 'name' in service.attrib:
-										service_str = service.attrib['name']
-										#Si tiene el tunell ssl añado la s al final del servicio http "+" s
-										if service_str not in ["https"]:
-											if 'tunnel' in service.attrib.keys() and service.attrib['tunnel'] == "ssl":
-												if service_str == "http-proxy":
-													service_str = "https-proxy"
-												else:
-													service_str += "s"
-										SERVICE_NAME = " - " + bcolors.CYAN + service_str + bcolors.ENDC
-										port_obj.service = service_str
+						if host.find('hostscript') != None and args.verbose:
+							scripts = host.find('hostscript').findall('script')
+							host_script_objs = []
+							for script in scripts:
+								host_script_obj = Script()
+								SCRIPT_ID = script.attrib['id']
+								SCRIPT_OUTPUT = ""
+								if 'output' in script.attrib:
+									SCRIPT_OUTPUT = " -> " + script.attrib['output']
+									SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","").replace("\r",".").replace("  "," ")
+								if args.no_verbose == False:
+									print( "  " + bcolors.PURPLE + "HostScript: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
 
-									if args.no_verbose == False:
-										if args.csv:
-											print(f"\"{host_obj.address}\";\"{','.join(host_obj.names)}\";{port.attrib['protocol'].upper()};{PORT};\"{service_str}\"")
+								host_script_obj.name = SCRIPT_ID
+								host_script_obj.information = SCRIPT_OUTPUT.replace(" -> ", "")
+								host_script_objs.append(host_script_obj)
+
+
+							host_obj.scripts = host_script_objs
+						
+						port_objs = []
+						if host.find('ports') != None and args.show_hosts_only == False:
+							ports = host.find('ports').findall('port')
+							for port in ports:
+								port_obj = Port()
+								if port.find('state').attrib['state'].upper() == 'OPEN':
+									port_obj.state = "OPEN"
+									if len(filter_ports) == 0 or (len(filter_ports) > 0 and int(port.attrib['portid']) in filter_ports):
+										PORT_PROTOCOL = ""
+										SERVICE_NAME = ""
+										PORT = port.attrib['portid']
+										service = port.find('service')
+										scripts = port.findall('script')
+
+										port_obj.protocol = port.attrib['protocol'].upper()
+										port_obj.port_number = int(PORT)
+
+										if port.attrib['protocol'].upper() == 'TCP':
+											PORT_PROTOCOL = bcolors.BOLD + bcolors.YELLOW + port.attrib['protocol'].upper() + bcolors.ENDC + " "
 										else:
-											print("  " + PORT_PROTOCOL + PORT + SERVICE_NAME)
+											PORT_PROTOCOL = bcolors.BOLD + bcolors.BLUE + port.attrib['protocol'].upper() + bcolors.ENDC + " "
+										
+										service_str = ""
+										if service != None and 'name' in service.attrib:
+											service_str = service.attrib['name']
+											#Si tiene el tunell ssl añado la s al final del servicio http "+" s
+											if service_str not in ["https"]:
+												if 'tunnel' in service.attrib.keys() and service.attrib['tunnel'] == "ssl":
+													if service_str == "http-proxy":
+														service_str = "https-proxy"
+													else:
+														service_str += "s"
+											SERVICE_NAME = " - " + bcolors.CYAN + service_str + bcolors.ENDC
+											port_obj.service = service_str
 
-									if args.verbose:
-										if service != None and 'product' in service.attrib:
-											SERVICE_PRODUCT = service.attrib['product']
-											SERVICE_VERSION = ""
-											SERVICE_EXTRAINFO = ""
+										if args.no_verbose == False:
+											if args.csv:
+												print(f"\"{host_obj.address}\";\"{','.join(host_obj.names)}\";{port.attrib['protocol'].upper()};{PORT};\"{service_str}\"")
+											else:
+												print("  " + PORT_PROTOCOL + PORT + SERVICE_NAME)
 
-											port_obj.product = SERVICE_PRODUCT
+										if args.verbose:
+											if service != None and 'product' in service.attrib:
+												SERVICE_PRODUCT = service.attrib['product']
+												SERVICE_VERSION = ""
+												SERVICE_EXTRAINFO = ""
 
-											if 'version' in service.attrib:
-												SERVICE_VERSION = " <" + service.attrib['version'] + ">"
-												port_obj.version = SERVICE_VERSION
-											if 'extrainfo' in service.attrib:
-												SERVICE_EXTRAINFO = service.attrib['extrainfo']
-												if not SERVICE_EXTRAINFO.startswith("(") and not SERVICE_EXTRAINFO.endswith(")"):
-													SERVICE_EXTRAINFO = "(" + SERVICE_EXTRAINFO + ")"
-												SERVICE_EXTRAINFO = " " + SERVICE_EXTRAINFO
-												port_obj.information = SERVICE_EXTRAINFO
-											if args.no_verbose == False:
-												print( "    " + bcolors.GREEN + "Service: " + bcolors.ENDC + SERVICE_PRODUCT + SERVICE_VERSION + SERVICE_EXTRAINFO)
+												port_obj.product = SERVICE_PRODUCT
 
-										script_objs = []
-										for script in scripts:
-											script_obj = Script()
+												if 'version' in service.attrib:
+													SERVICE_VERSION = " <" + service.attrib['version'] + ">"
+													port_obj.version = SERVICE_VERSION
+												if 'extrainfo' in service.attrib:
+													SERVICE_EXTRAINFO = service.attrib['extrainfo']
+													if not SERVICE_EXTRAINFO.startswith("(") and not SERVICE_EXTRAINFO.endswith(")"):
+														SERVICE_EXTRAINFO = "(" + SERVICE_EXTRAINFO + ")"
+													SERVICE_EXTRAINFO = " " + SERVICE_EXTRAINFO
+													port_obj.information = SERVICE_EXTRAINFO
+												if args.no_verbose == False:
+													print( "    " + bcolors.GREEN + "Service: " + bcolors.ENDC + SERVICE_PRODUCT + SERVICE_VERSION + SERVICE_EXTRAINFO)
 
-											SCRIPT_ID = script.attrib['id']
-											SCRIPT_OUTPUT = ""
-											if 'output' in script.attrib:
-												SCRIPT_OUTPUT = " -> " + script.attrib['output']
-												SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("  "," ").replace("\n","\n      ").replace("\r",".")
-											
-											script_obj.name = SCRIPT_ID
-											script_obj.information = SCRIPT_OUTPUT.replace(" -> ", "")
-											script_objs.append(script_obj)
+											script_objs = []
+											for script in scripts:
+												script_obj = Script()
 
-											if args.no_verbose == False and SCRIPT_ID not in args.no_scripts.split(","):
-												print( "    " + bcolors.PURPLE + "Script: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
-										port_obj.scripts = script_objs
+												SCRIPT_ID = script.attrib['id']
+												SCRIPT_OUTPUT = ""
+												if 'output' in script.attrib:
+													SCRIPT_OUTPUT = " -> " + script.attrib['output']
+													SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("  "," ").replace("\n","\n      ").replace("\r",".")
+												
+												script_obj.name = SCRIPT_ID
+												script_obj.information = SCRIPT_OUTPUT.replace(" -> ", "")
+												script_objs.append(script_obj)
 
-									port_objs.append(port_obj)
-								
-							if args.clipboard:
-								open_ports.append(PORT)
+												if args.no_verbose == False and SCRIPT_ID not in args.no_scripts.split(","):
+													print( "    " + bcolors.PURPLE + "Script: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
+											port_obj.scripts = script_objs
 
-						#for ports end
-					host_obj.ports = port_objs
+										port_objs.append(port_obj)
+									
+								if args.clipboard:
+									open_ports.append(PORT)
+
+							#for ports end
+						host_obj.ports = port_objs
 
 				
 
@@ -246,6 +256,7 @@ if __name__ == '__main__':
 	parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
 	parser.add_argument('-vv', '--very_verbose', action='store_true', help='Very verbose mode')
 	parser.add_argument('--csv', action='store_true', help='Output in CSV')
+	parser.add_argument('--with_ports', action='store_true', help='Show hosts with open ports')
 	parser.add_argument('xml_file', nargs='+', type=ascii, help="XML file with the nmap output.")
 
 
