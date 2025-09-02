@@ -200,8 +200,8 @@ def main(args):
 
 										port_objs.append(port_obj)
 									
-								if args.clipboard:
-									open_ports.append(PORT)
+									if args.clipboard:
+										open_ports.append(PORT)
 
 							#for ports end
 						host_obj.ports = port_objs
