@@ -108,10 +108,10 @@ def main(args):
 								SCRIPT_OUTPUT = ""
 								if 'output' in script.attrib:
 									script.attrib['output'] = script.attrib['output'].replace("\r",".")
-									while ("\n " in script.attrib['output']):
-										script.attrib['output'] = script.attrib['output'].replace('\n ', '\n')
 									while ("  " in script.attrib['output']):
 										script.attrib['output'] = script.attrib['output'].replace('  ', ' ')
+									while ("\n " in script.attrib['output']):
+										script.attrib['output'] = script.attrib['output'].replace('\n ', '\n')
 
 									if script.attrib['output'].endswith('\n'):
 										SCRIPT_OUTPUT = "\n".join(script.attrib['output'].split('\n')[:-1])
@@ -200,10 +200,10 @@ def main(args):
 												SCRIPT_OUTPUT = ""
 												if 'output' in script.attrib:
 													script.attrib['output'] = script.attrib['output'].replace("\r",".")
-													while ("\n " in script.attrib['output']):
-														script.attrib['output'] = script.attrib['output'].replace('\n ', '\n')
 													while ("  " in script.attrib['output']):
 														script.attrib['output'] = script.attrib['output'].replace('  ', ' ')
+													while ("\n " in script.attrib['output']):
+														script.attrib['output'] = script.attrib['output'].replace('\n ', '\n')
 
 													if script.attrib['output'].endswith('\n'):
 														SCRIPT_OUTPUT = "\n".join(script.attrib['output'].split('\n')[:-1])
