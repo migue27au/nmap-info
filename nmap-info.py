@@ -107,8 +107,13 @@ def main(args):
 								SCRIPT_ID = script.attrib['id']
 								SCRIPT_OUTPUT = ""
 								if 'output' in script.attrib:
-									SCRIPT_OUTPUT = " -> " + script.attrib['output']
-									SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","").replace("\r",".").replace("  "," ")
+									script.attrib['output'] = script.attrib['output'].replace('\n ', '\n').replace("\r",".").replace("  "," ")
+									if script.attrib['output'].startswith('\n '):
+										SCRIPT_OUTPUT = " -> " + "\n".join(script.attrib['output'].split('\n ')[1:])
+									else:
+										SCRIPT_OUTPUT = " -> " + script.attrib['output']
+									SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","\n"+(" "*len("  HostScript:    ")) )
+
 								if args.no_verbose == False:
 									print( "  " + bcolors.PURPLE + "HostScript: " + bcolors.ENDC + SCRIPT_ID + SCRIPT_OUTPUT)
 
@@ -187,8 +192,12 @@ def main(args):
 												SCRIPT_ID = script.attrib['id']
 												SCRIPT_OUTPUT = ""
 												if 'output' in script.attrib:
-													SCRIPT_OUTPUT = " -> " + script.attrib['output']
-													SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("  "," ").replace("\n","\n      ").replace("\r",".")
+													script.attrib['output'] = script.attrib['output'].replace('\n ', '\n').replace("\r",".").replace("  "," ")
+													if script.attrib['output'].startswith('\n '):
+														SCRIPT_OUTPUT = " -> " + "\n".join(script.attrib['output'].split('\n ')[1:])
+													else:
+														SCRIPT_OUTPUT = " -> " + script.attrib['output']
+													SCRIPT_OUTPUT = SCRIPT_OUTPUT.replace("\n","\n"+(" "*len("    Script:    ")) )
 												
 												script_obj.name = SCRIPT_ID
 												script_obj.information = SCRIPT_OUTPUT.replace(" -> ", "")
